@@ -1,0 +1,17 @@
+#uwsgi for jenkins-api
+---
+uwsgi:
+  plugin: python,gevent
+  single-interpreter: true
+  processes: 2
+  enable-threads: True
+  gevent: 100
+  max-fd: 100000
+  gevent-monkey-patch: true
+  mount: /jenkins=myjenkinsapi.py
+  callable: app
+  chdir: /opt/jenkins-sy/
+  socket: :8999
+  protocol: http
+  manage-script-name: true
+  master: true

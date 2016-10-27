@@ -1,0 +1,21 @@
+{% extends "conf.xml.j2" %}
+{% block scm %}
+  <scm class="hudson.scm.SubversionSCM" plugin="subversion@2.6">
+    <locations>
+      <hudson.scm.SubversionSCM_-ModuleLocation>
+        <remote>{{ address }}</remote>
+        <credentialsId>{{ userid }}</credentialsId>
+        <depthOption>infinity</depthOption>
+        <ignoreExternalsOption>true</ignoreExternalsOption>
+      </hudson.scm.SubversionSCM_-ModuleLocation>
+    </locations>
+    <excludedRegions></excludedRegions>
+    <includedRegions></includedRegions>
+    <excludedUsers></excludedUsers>
+    <excludedRevprop></excludedRevprop>
+    <excludedCommitMessages></excludedCommitMessages>
+    <workspaceUpdater class="hudson.scm.subversion.UpdateUpdater"/>
+    <ignoreDirPropChanges>false</ignoreDirPropChanges>
+    <filterChangelog>false</filterChangelog>
+  </scm>
+{% endblock %}

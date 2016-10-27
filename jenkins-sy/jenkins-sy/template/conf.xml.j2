@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>{{ description }}</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    {% if avg is defined %}
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        {% for k in avg %}
+        <hudson.model.StringParameterDefinition>
+          <name>{{ k }}</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        {% endfor %}
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    {% endif %}
+  </properties>
+  {% block scm %}
+  {% endblock %}
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      {% if avg is defined %}
+      <command>echo ""
+docker build -t=&quot;$REGISTRY/{{ tag }}:$BUILD_TAG&quot; .
+echo ""
+docker login --username=&quot;$USERNAME&quot; --password=&quot;$PASSWORD&quot; $REGISTRY
+docker push $REGISTRY/{{ tag }}:$BUILD_TAG
+echo ""
+docker logout</command>
+      {% endif %}
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
