@@ -37,12 +37,14 @@ def getUP(userid,url,repo):
     conn = mysql.connector.connect(**config)
     cursor = conn.cursor()
     try:
-        sql = "SELECT url,username,password FROM registry WHERE owner='%s' and url='%s' and repo='%s'"%(userid,url,repo)
+        sql = "SELECT url,username,password,repo FROM registry WHERE owner='%s' and url='%s' and repo='%s'"%(userid,url,repo)
         cursor.execute(sql)
         row = cursor.fetchone()
         Url = row[0]
         Username = row[1]
         Password = row[2]
+        Repo = row[3]
+        Url = Url.split('//')[1]
     except mysql.connector.Error as e:
         print "Error: %s"%e
         return
@@ -50,7 +52,7 @@ def getUP(userid,url,repo):
         cursor.close()
         conn.close()
 
-    return Username,Password,Url
+    return Username,Password,Url,Repo
 
 def getRegistry(userid):
     conn = mysql.connector.connect(**config)

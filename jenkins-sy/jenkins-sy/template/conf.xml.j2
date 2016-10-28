@@ -29,10 +29,10 @@
     <hudson.tasks.Shell>
       {% if avg is defined %}
       <command>echo ""
-docker build -t=&quot;$REGISTRY/{{ tag }}:$BUILD_TAG&quot; .
+docker build -t=&quot;$REGISTRY/$REPO/{{ tag }}:$BUILD_NUMBER&quot; .
 echo ""
 docker login --username=&quot;$USERNAME&quot; --password=&quot;$PASSWORD&quot; $REGISTRY
-docker push $REGISTRY/{{ tag }}:$BUILD_TAG
+docker push $REGISTRY/$REPO/{{ tag }}:jenkins.$BUILD_NUMBER
 echo ""
 docker logout</command>
       {% endif %}

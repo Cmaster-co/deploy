@@ -49,7 +49,7 @@ def buildJob():
 	url = data.get('url')
 
 	avg = {}
-	avg['USERNAME'],avg['PASSWORD'],avg['REGISTRY'] = dbclient.getUP(userid,url,repo)
+	avg['USERNAME'],avg['PASSWORD'],avg['REGISTRY'],avg['REPO'] = dbclient.getUP(userid,url,repo)
 
 	st = jenkins.buildJob(appid, avg)
 

@@ -36,7 +36,7 @@ class CIJenkins(object):
 				"tag": conf['tag']
 		}
 		temp_type = conf['type'].lower()
-		templateVars['avg'] = ['USERNAME','PASSWORD','REGISTRY']
+		templateVars['avg'] = ['USERNAME','PASSWORD','REGISTRY','REPO']
 		if conf.has_key('username') and conf['username'] != "":
 			cd = {'username':conf['username'],'password':conf['password'],'desc': conf['appid']}
 			userid = self.createCredentials(cd)
