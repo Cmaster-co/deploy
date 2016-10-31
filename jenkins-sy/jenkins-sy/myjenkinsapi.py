@@ -15,6 +15,7 @@ def createJob():
 
 	data = json.loads(request.body.read())
 	appid = data.get('appid')
+	marathon = data.get('marathon')
 	conf = data.get('conf')
 	try:
 		dbclient.addRecords(conf)
@@ -22,7 +23,7 @@ def createJob():
 		return {'st':'error','data':str(e)}
 
 	xml = jenkins.generateXml(conf)
-	return {'st': jenkins.addJob(appid, xml)}
+	return {'st': jenkins.addJob(marathon+':'+appid, xml)}
 
 
 @app.route('/getRegistry', method='POST')
@@ -43,6 +44,7 @@ def buildJob():
 	jenkins = CIJenkins.CIJenkins()
 
 	data = json.loads(request.body.read())
+	marathon = data.get('marathon')
 	appid = data.get('appid')
 	userid = data.get('userid')
 	repo = data.get('repo')
@@ -51,9 +53,9 @@ def buildJob():
 	avg = {}
 	avg['USERNAME'],avg['PASSWORD'],avg['REGISTRY'],avg['REPO'] = dbclient.getUP(userid,url,repo)
 
-	st = jenkins.buildJob(appid, avg)
+	st,num = jenkins.buildJob(marathon+':'+appid, avg)
 
-	return {'st': st}
+	return {'st': st, 'buildid':num}
 
 
 @app.route('/updateJob', method='POST')
@@ -61,6 +63,7 @@ def updateJob():
 	jenkins = CIJenkins.CIJenkins()
 
 	data = json.loads(request.body.read())
+	marathon = data.get('marathon')
 	appid = data.get('appid')
 	conf = data.get('conf')
 	try:
@@ -69,7 +72,7 @@ def updateJob():
 		return {'st':'error','data':str(e)}
 
 	xml = jenkins.generateXml(conf)
-	return {'st': jenkins.updateJob(appid, xml)}
+	return {'st': jenkins.updateJob(marathon+':'+appid, xml)}
 
 
 @app.route('/deleteJob', method='POST')
@@ -78,9 +81,10 @@ def deleteJob():
 
 	data = json.loads(request.body.read())
 	appid = data.get('appid')
+	marathon = data.get('marathon')
 	try:
-		st = jenkins.deleteJob(appid)
-		dbclient.delRecords(appid)
+		st = jenkins.deleteJob(marathon+':'+appid)
+		dbclient.delRecords(appid,marathon)
 	except Exception, e:
 		return {'st':'error','data':str(e)}
 	return {'st': 'ok'}
@@ -92,16 +96,18 @@ def getJob():
 
 	data = json.loads(request.body.read())
 	appid = data.get('appid')
+	marathon = data.get('marathon')
 
-	return jenkins.queryJob(appid)
+	return jenkins.queryJob(marathon+':'+appid)
 
 
 @app.route('/listJob', method='POST')
 def listJob():
 	data = json.loads(request.body.read())
 	appid = data.get('appid')
+	marathon = data.get('marathon')
 
-	jobs = dbclient.getJobs(appid)
+	jobs = dbclient.getJobs(appid,marathon)
 
 	return {'jobs':jobs}
 
@@ -112,11 +118,12 @@ def runCheck():
 
 	data = json.loads(request.body.read())
 	appid = data.get('appid')
+	marathon = data.get('marathon')
 
-	r_data = jenkins.runCheck(appid)
-	r_data['lastStatus'] = jenkins.getbuildStatus(appid)
-	r_data['lastSucceed_time'], r_data['lastSucceed_num'] = jenkins.getLastSucceed(appid)
-	r_data['lastFail_time'], r_data['lastFail_num'] = jenkins.getLastFail(appid)
+	r_data = jenkins.runCheck(marathon+':'+appid)
+	r_data['lastStatus'] = jenkins.getbuildStatus(marathon+':'+appid)
+	r_data['lastSucceed_time'], r_data['lastSucceed_num'] = jenkins.getLastSucceed(marathon+':'+appid)
+	r_data['lastFail_time'], r_data['lastFail_num'] = jenkins.getLastFail(marathon+':'+appid)
 
 	return r_data
 
@@ -127,9 +134,10 @@ def buildConsole():
 
 	data = json.loads(request.body.read())
 	appid = data.get('appid')
+	marathon = data.get('marathon')
 	number = data.get('buildid')
 
-	return jenkins.getbuildconsole(appid,number)
+	return jenkins.getbuildconsole(marathon+':'+appid,number)
 
 
 @app.route('/buildList', method='POST')
@@ -138,8 +146,9 @@ def buildList():
 
 	data = json.loads(request.body.read())
 	appid = data.get('appid')
+	marathon = data.get('marathon')
 
-	return jenkins.getbuildids(appid)
+	return jenkins.getbuildids(marathon+':'+appid)
 
 
 if __name__ == '__main__':

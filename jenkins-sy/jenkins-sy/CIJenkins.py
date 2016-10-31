@@ -58,11 +58,12 @@ class CIJenkins(object):
 
 	def buildJob(self, name, avg=None):
 		try:
+			num = self.server_status[name].get_next_build_number()
 			if avg is None:
 				self.server.build_job(name)
 			else:
 				self.server.build_job(name,avg)
-			return "ok"
+			return "ok", num
 		except Exception,e:
 			return "error: %s"%str(e)
 

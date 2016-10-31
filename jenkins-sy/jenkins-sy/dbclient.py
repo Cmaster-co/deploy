@@ -14,16 +14,16 @@ config = {
     'database':DB_NAME,
     'charset':'utf8'}
 
-def getJobs(appid):
+def getJobs(appid,marathon):
     conn = mysql.connector.connect(**config)
     cursor = conn.cursor()
     try:
         appid = "'%"+appid+"%'"
-        sql = "SELECT appid,address,tag,branch,description,type FROM jenkins_cfg WHERE appid LIKE %s"%str(appid)
+        sql = "SELECT appid,address,tag,branch,description,type,marathon FROM jenkins_cfg WHERE marathon='%s' and appid LIKE %s"%(marathon,str(appid))
         cursor.execute(sql)
         j_list = []
-        for appid,address,tag,branch,description,t in cursor:
-            j_list.append({'appid':appid,'address':address,'tag':tag,'branch':branch,'description':description,'type':t})
+        for appid,address,tag,branch,description,t,m in cursor:
+            j_list.append({'appid':appid,'address':address,'tag':tag,'branch':branch,'description':description,'type':t,'marathon':m})
     except mysql.connector.Error as e:
         print "Error: %s"%e
         return
@@ -72,11 +72,11 @@ def getRegistry(userid):
 
     return r_list
 
-def getSetting(appid):
+def getSetting(appid,marathon):
     conn = mysql.connector.connect(**config)
     cursor = conn.cursor()
     try:
-        sql = "SELECT appid,address,tag,branch,description,type FROM jenkins_cfg WHERE appid='%s' LIMIT 1"%str(appid)
+        sql = "SELECT appid,address,tag,branch,description,type,marathon FROM jenkins_cfg WHERE appid='%s' and marathon='%s' LIMIT 1"%(str(appid),marathon)
         cursor.execute(sql)
         row = cursor.fetchone()
         conf['appid'] = row[0]
@@ -85,6 +85,7 @@ def getSetting(appid):
         conf['branch'] = row[3]
         conf['description'] = row[4]
         conf['type'] = row[5]
+        conf['marathon'] = row[6]
     except mysql.connector.Error as e:
         print "Error: %s"%e
         return 
@@ -95,11 +96,11 @@ def getSetting(appid):
     return conf
 
 
-def delRecords(appid):
+def delRecords(appid,marathon):
     conn = mysql.connector.connect(**config)
     cursor = conn.cursor()
     try:
-        sql = "DELETE FROM jenkins_cfg WHERE appid = '%s'"%str(appid)
+        sql = "DELETE FROM jenkins_cfg WHERE appid = '%s' and marathon = '%s'"%(str(appid),marathon)
         cursor.execute(sql)
         conn.commit()
     except  mysql.connector.Error as e:
@@ -113,7 +114,7 @@ def addRecords(cf):
     conn = mysql.connector.connect(**config)
     cursor = conn.cursor()
     try:
-        sql = "INSERT INTO jenkins_cfg (appid,branch,address,type,description,tag)VALUES('%s','%s','%s','%s','%s','%s')"%(cf['appid'],cf['branch'],cf['address'],cf['type'],cf['description'],cf['tag'])
+        sql = "INSERT INTO jenkins_cfg (appid,marathon,branch,address,type,description,tag)VALUES('%s','%s','%s','%s','%s','%s','%s')"%(cf['appid'],cf['marathon'],cf['branch'],cf['address'],cf['type'],cf['description'],cf['tag'])
         cursor.execute(sql)
         conn.commit()
     except  mysql.connector.Error as e:
